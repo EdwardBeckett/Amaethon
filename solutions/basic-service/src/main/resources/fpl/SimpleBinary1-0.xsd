@@ -16,10 +16,10 @@
   ~
   -->
 
-<xs:schema targetNamespace="http://www.fixprotocol.org/ns/simple/1.0"
-           elementFormDefault="unqualified"
-           xmlns:sbe="http://www.fixprotocol.org/ns/simple/1.0"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:sbe="http://www.fixprotocol.org/ns/simple/1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.fixprotocol.org/ns/simple/1.0"
+           elementFormDefault="unqualified">
 
     <xs:annotation>
         <xs:documentation>

@@ -17,8 +17,12 @@
 
 defaultTasks 'clean', 'build'
 
+
+
 buildscript {
+
     repositories {
+
         maven {
             url 'https://plugins.gradle.org/m2/'
         }
@@ -26,24 +30,35 @@ buildscript {
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
     }
+
+    configurations.all {
+        resolutionStrategy.cacheDynamicVersionsFor 0, 'minutes'
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    }
 }
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'idea'
     apply plugin: 'com.github.johnrengelman.shadow'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
     repositories {
-        mavenCentral()
-        mavenLocal()
+        jcenter()
+        maven {
+            url "http://repo.beckett.com/repo"
+        }
+
     }
 
     dependencies {
         compile 'uk.co.real-logic:aeron-all:0.2.2',
-            'uk.co.real-logic:sbe:1.1.7-RC2'
+                'uk.co.real-logic:sbe:1.1.7-RC2',
+                'uk.co.real-logic:Agrona:0.4.8'
     }
+
 
     build.doLast {
         tasks.shadowJar.execute()
@@ -53,10 +68,10 @@ subprojects {
         description = "Generate SBE codecs into ${project.projectDir}/src/main/java/amaethon/generated"
         main = 'uk.co.real_logic.sbe.SbeTool'
         systemProperties(
-            'sbe.output.dir': "${project.projectDir}/src/main/java",
-            'sbe.target.language': 'Java',
-            'sbe.validation.stop.on.error': 'true',
-            'sbe.validation.xsd': "${project.projectDir}/src/main/resources/fpl/SimpleBinary1-0.xsd")
+                'sbe.output.dir': "${project.projectDir}/src/main/java",
+                'sbe.target.language': 'Java',
+                'sbe.validation.stop.on.error': 'true',
+                'sbe.validation.xsd': "${project.projectDir}/src/main/resources/fpl/SimpleBinary1-0.xsd")
         args "${project.projectDir}/src/main/resources/Amaethon-schema.xml"
     }
 

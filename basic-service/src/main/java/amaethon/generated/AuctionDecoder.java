@@ -21,53 +21,128 @@ package amaethon.generated;
 import uk.co.real_logic.agrona.DirectBuffer;
 import uk.co.real_logic.sbe.codec.java.CodecUtil;
 
-public class AuctionDecoder
-{
+public class AuctionDecoder {
     public static final int BLOCK_LENGTH = 16;
     public static final int TEMPLATE_ID = 1;
     public static final int SCHEMA_ID = 1;
     public static final int SCHEMA_VERSION = 0;
 
     private final AuctionDecoder parentMessage = this;
-    private DirectBuffer buffer;
     protected int offset;
     protected int limit;
     protected int actingBlockLength;
     protected int actingVersion;
+    private DirectBuffer buffer;
 
-    public int sbeBlockLength()
-    {
-        return BLOCK_LENGTH;
+    public static int durationInNanosId() {
+        return 1;
     }
 
-    public int sbeTemplateId()
-    {
-        return TEMPLATE_ID;
-    }
+    public static String durationInNanosMetaAttribute(final MetaAttribute metaAttribute) {
+        switch (metaAttribute) {
+            case EPOCH:
+                return "unix";
+            case TIME_UNIT:
+                return "nanosecond";
+            case SEMANTIC_TYPE:
+                return "";
+        }
 
-    public int sbeSchemaId()
-    {
-        return SCHEMA_ID;
-    }
-
-    public int sbeSchemaVersion()
-    {
-        return SCHEMA_VERSION;
-    }
-
-    public String sbeSemanticType()
-    {
         return "";
     }
 
-    public int offset()
-    {
+    public static long durationInNanosNullValue() {
+        return -9223372036854775808L;
+    }
+
+    public static long durationInNanosMinValue() {
+        return -9223372036854775807L;
+    }
+
+    public static long durationInNanosMaxValue() {
+        return 9223372036854775807L;
+    }
+
+    public static int reserveId() {
+        return 2;
+    }
+
+    public static String reserveMetaAttribute(final MetaAttribute metaAttribute) {
+        switch (metaAttribute) {
+            case EPOCH:
+                return "unix";
+            case TIME_UNIT:
+                return "nanosecond";
+            case SEMANTIC_TYPE:
+                return "";
+        }
+
+        return "";
+    }
+
+    public static long reserveNullValue() {
+        return -9223372036854775808L;
+    }
+
+    public static long reserveMinValue() {
+        return -9223372036854775807L;
+    }
+
+    public static long reserveMaxValue() {
+        return 9223372036854775807L;
+    }
+
+    public static int nameId() {
+        return 3;
+    }
+
+    public static String nameCharacterEncoding() {
+        return "UTF-8";
+    }
+
+    public static String nameMetaAttribute(final MetaAttribute metaAttribute) {
+        switch (metaAttribute) {
+            case EPOCH:
+                return "unix";
+            case TIME_UNIT:
+                return "nanosecond";
+            case SEMANTIC_TYPE:
+                return "";
+        }
+
+        return "";
+    }
+
+    public static int nameHeaderSize() {
+        return 1;
+    }
+
+    public int sbeBlockLength() {
+        return BLOCK_LENGTH;
+    }
+
+    public int sbeTemplateId() {
+        return TEMPLATE_ID;
+    }
+
+    public int sbeSchemaId() {
+        return SCHEMA_ID;
+    }
+
+    public int sbeSchemaVersion() {
+        return SCHEMA_VERSION;
+    }
+
+    public String sbeSemanticType() {
+        return "";
+    }
+
+    public int offset() {
         return offset;
     }
 
     public AuctionDecoder wrap(
-        final DirectBuffer buffer, final int offset, final int actingBlockLength, final int actingVersion)
-    {
+            final DirectBuffer buffer, final int offset, final int actingBlockLength, final int actingVersion) {
         this.buffer = buffer;
         this.offset = offset;
         this.actingBlockLength = actingBlockLength;
@@ -77,127 +152,28 @@ public class AuctionDecoder
         return this;
     }
 
-    public int size()
-    {
+    public int size() {
         return limit - offset;
     }
 
-    public int limit()
-    {
+    public int limit() {
         return limit;
     }
 
-    public void limit(final int limit)
-    {
+    public void limit(final int limit) {
         buffer.checkLimit(limit);
         this.limit = limit;
     }
 
-    public static int durationInNanosId()
-    {
-        return 1;
-    }
-
-    public static String durationInNanosMetaAttribute(final MetaAttribute metaAttribute)
-    {
-        switch (metaAttribute)
-        {
-            case EPOCH: return "unix";
-            case TIME_UNIT: return "nanosecond";
-            case SEMANTIC_TYPE: return "";
-        }
-
-        return "";
-    }
-
-    public static long durationInNanosNullValue()
-    {
-        return -9223372036854775808L;
-    }
-
-    public static long durationInNanosMinValue()
-    {
-        return -9223372036854775807L;
-    }
-
-    public static long durationInNanosMaxValue()
-    {
-        return 9223372036854775807L;
-    }
-
-    public long durationInNanos()
-    {
+    public long durationInNanos() {
         return CodecUtil.int64Get(buffer, offset + 0, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
-
-    public static int reserveId()
-    {
-        return 2;
-    }
-
-    public static String reserveMetaAttribute(final MetaAttribute metaAttribute)
-    {
-        switch (metaAttribute)
-        {
-            case EPOCH: return "unix";
-            case TIME_UNIT: return "nanosecond";
-            case SEMANTIC_TYPE: return "";
-        }
-
-        return "";
-    }
-
-    public static long reserveNullValue()
-    {
-        return -9223372036854775808L;
-    }
-
-    public static long reserveMinValue()
-    {
-        return -9223372036854775807L;
-    }
-
-    public static long reserveMaxValue()
-    {
-        return 9223372036854775807L;
-    }
-
-    public long reserve()
-    {
+    public long reserve() {
         return CodecUtil.int64Get(buffer, offset + 8, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
-
-    public static int nameId()
-    {
-        return 3;
-    }
-
-    public static String nameCharacterEncoding()
-    {
-        return "UTF-8";
-    }
-
-    public static String nameMetaAttribute(final MetaAttribute metaAttribute)
-    {
-        switch (metaAttribute)
-        {
-            case EPOCH: return "unix";
-            case TIME_UNIT: return "nanosecond";
-            case SEMANTIC_TYPE: return "";
-        }
-
-        return "";
-    }
-
-    public static int nameHeaderSize()
-    {
-        return 1;
-    }
-
-    public int nameLength()
-    {
+    public int nameLength() {
         final int sizeOfLengthField = 1;
         final int limit = limit();
         buffer.checkLimit(limit + sizeOfLengthField);
@@ -205,8 +181,7 @@ public class AuctionDecoder
         return CodecUtil.uint8Get(buffer, limit);
     }
 
-    public int getName(final uk.co.real_logic.agrona.MutableDirectBuffer dst, final int dstOffset, final int length)
-    {
+    public int getName(final uk.co.real_logic.agrona.MutableDirectBuffer dst, final int dstOffset, final int length) {
         final int sizeOfLengthField = 1;
         final int limit = limit();
         buffer.checkLimit(limit + sizeOfLengthField);
@@ -218,8 +193,7 @@ public class AuctionDecoder
         return bytesCopied;
     }
 
-    public int getName(final byte[] dst, final int dstOffset, final int length)
-    {
+    public int getName(final byte[] dst, final int dstOffset, final int length) {
         final int sizeOfLengthField = 1;
         final int limit = limit();
         buffer.checkLimit(limit + sizeOfLengthField);
@@ -231,8 +205,7 @@ public class AuctionDecoder
         return bytesCopied;
     }
 
-    public String name()
-    {
+    public String name() {
         final int sizeOfLengthField = 1;
         final int limit = limit();
         buffer.checkLimit(limit + sizeOfLengthField);
@@ -242,12 +215,9 @@ public class AuctionDecoder
         buffer.getBytes(limit + sizeOfLengthField, tmp, 0, dataLength);
 
         final String value;
-        try
-        {
+        try {
             value = new String(tmp, "UTF-8");
-        }
-        catch (final java.io.UnsupportedEncodingException ex)
-        {
+        } catch (final java.io.UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
 

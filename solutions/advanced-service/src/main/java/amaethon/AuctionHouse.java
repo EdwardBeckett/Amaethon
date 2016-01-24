@@ -17,40 +17,33 @@
 
 package amaethon;
 
-import uk.co.real_logic.agrona.collections.Long2ObjectHashMap;
-
 import java.util.ArrayList;
 import java.util.function.Consumer;
+
+import uk.co.real_logic.agrona.collections.Long2ObjectHashMap;
 
 /**
  * Encapsulation of the Auction House. Holds pre-allocated {@link Auction} instances, {@link Bidder} instances,
  * and callbacks for events.
  */
-public class AuctionHouse implements Model
-{
+public class AuctionHouse implements Model {
     private static final int INITIAL_NUMBER_OF_AUCTION_SLOTS = 16;
-
-    private final Consumer<Auction> onAdvanceTimeFunc = this::onAdvanceTime;
     private final ArrayList<Auction> auctions = new ArrayList<>();
     private final Long2ObjectHashMap<Bidder> bidders = new Long2ObjectHashMap<>();
-
     private final Consumer<Auction> onNewAuctionFunc;
     private final Consumer<Auction> onNewHighBidFunc;
     private final Consumer<Auction> onFixedPriceUpdateFunc;
     private final Consumer<Auction> onAuctionOverFunc;
-
     private long currentTimeInNanos;
-
     private int activeAuctions = 0;
+    private final Consumer<Auction> onAdvanceTimeFunc = this::onAdvanceTime;
 
     public AuctionHouse(
-        final Consumer<Auction> onNewAuction,
-        final Consumer<Auction> onNewHighBid,
-        final Consumer<Auction> onFixedPriceUpdate,
-        final Consumer<Auction> onAuctionOver)
-    {
-        for (int i = INITIAL_NUMBER_OF_AUCTION_SLOTS - 1; i >= 0; i--)
-        {
+            final Consumer<Auction> onNewAuction,
+            final Consumer<Auction> onNewHighBid,
+            final Consumer<Auction> onFixedPriceUpdate,
+            final Consumer<Auction> onAuctionOver) {
+        for (int i = INITIAL_NUMBER_OF_AUCTION_SLOTS - 1; i >= 0; i--) {
             auctions.add(new Auction());
         }
 
@@ -60,30 +53,25 @@ public class AuctionHouse implements Model
         onAuctionOverFunc = onAuctionOver;
     }
 
-    public long currentTimeInNanos()
-    {
+    public long currentTimeInNanos() {
         return this.currentTimeInNanos;
     }
 
-    public int activeAuctions()
-    {
+    public int activeAuctions() {
         return activeAuctions;
     }
 
-    public void advanceTime(final long now)
-    {
+    public void advanceTime(final long now) {
         currentTimeInNanos = now;
         forEach(onAdvanceTimeFunc);
     }
 
     // TODO: use for mocking and testing mostly
-    public Auction auction(final int id)
-    {
+    public Auction auction(final int id) {
         return auctions.get(id);
     }
 
-    public int add(final byte[] name, final int nameLength, final long expiration, final long reserveValue)
-    {
+    public int add(final byte[] name, final int nameLength, final long expiration, final long reserveValue) {
         final int id = findAuctionId();
 
         auctions.get(id).reset(id, name, nameLength, expiration, reserveValue);
@@ -93,8 +81,7 @@ public class AuctionHouse implements Model
         return id;
     }
 
-    public int add(final byte[] name, final int nameLength, final long expiration, final long price, final int quantity)
-    {
+    public int add(final byte[] name, final int nameLength, final long expiration, final long price, final int quantity) {
         final int id = findAuctionId();
 
         auctions.get(id).reset(id, name, nameLength, expiration, price, quantity);
@@ -104,34 +91,26 @@ public class AuctionHouse implements Model
         return id;
     }
 
-    public void cancel(int auctionId)
-    {
+    public void cancel(int auctionId) {
         final Auction auction = auctions.get(auctionId);
 
-        if (null != auction)
-        {
+        if (null != auction) {
             activeAuctions--;
             auction.cancel();
         }
     }
 
-    public boolean bid(int auctionId, long bidderId, long value)
-    {
+    public boolean bid(int auctionId, long bidderId, long value) {
         boolean result = false;
         final Auction auction = auctions.get(auctionId);
 
-        if (null != auction)
-        {
+        if (null != auction) {
             result = auction.bid(bidderId, value);
 
-            if (result)
-            {
-                if (auction.isFixedPrice())
-                {
+            if (result) {
+                if (auction.isFixedPrice()) {
                     onFixedPriceUpdateFunc.accept(auction);
-                }
-                else
-                {
+                } else {
                     onNewHighBidFunc.accept(auction);
                 }
             }
@@ -140,54 +119,43 @@ public class AuctionHouse implements Model
         return result;
     }
 
-    public void forEach(Consumer<Auction> consumer)
-    {
-        for (int i = auctions.size() - 1; i >= 0; i--)
-        {
+    public void forEach(Consumer<Auction> consumer) {
+        for (int i = auctions.size() - 1; i >= 0; i--) {
             final Auction auction = auctions.get(i);
 
-            if (auction.isActive())
-            {
+            if (auction.isActive()) {
                 consumer.accept(auction);
             }
         }
     }
 
-    public void addBidder(byte[] name, long bidderId, long budget)
-    {
-        if (null != bidders.get(bidderId))
-        {
+    public void addBidder(byte[] name, long bidderId, long budget) {
+        if (null != bidders.get(bidderId)) {
             throw new IllegalArgumentException("Bidder ID already taken: id=" + bidderId);
         }
 
         bidders.put(bidderId, new Bidder(name, bidderId, budget));
     }
 
-    private void onAdvanceTime(final Auction auction)
-    {
-        if (auction.onAdvanceTime(currentTimeInNanos) > 0)
-        {
+    private void onAdvanceTime(final Auction auction) {
+        if (auction.onAdvanceTime(currentTimeInNanos) > 0) {
             activeAuctions--;
             onAuctionOverFunc.accept(auction);
         }
     }
 
-    private int findAuctionId()
-    {
+    private int findAuctionId() {
         int id = -1;
 
-        for (int i = auctions.size() - 1; i >= 0; i--)
-        {
+        for (int i = auctions.size() - 1; i >= 0; i--) {
             final Auction auction = auctions.get(i);
 
-            if (auction.isInactive())
-            {
+            if (auction.isInactive()) {
                 id = i;
             }
         }
 
-        if (-1 == id)
-        {
+        if (-1 == id) {
             id = auctions.size();
             auctions.add(id, new Auction());
         }

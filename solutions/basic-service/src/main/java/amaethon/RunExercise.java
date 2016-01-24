@@ -22,13 +22,11 @@ import uk.co.real_logic.aeron.driver.MediaDriver;
 /**
  * Runner for the exercise that has a contained Media Driver, AuctionService and AutomatedClient
  */
-public class RunExercise
-{
+public class RunExercise {
     public static final String SUBMISSION_CHANNEL = "aeron:udp?remote=localhost:43456";
     public static final int SUBMISSION_STREAM_ID = 1;
 
-    public static void main(final String[] args) throws Exception
-    {
+    public static void main(final String[] args) throws Exception {
         final MediaDriver.Context ctx = new MediaDriver.Context();
         final MediaDriver mediaDriver = MediaDriver.launch(ctx.dirsDeleteOnStart(true));
         final AuctionService service = new AuctionService(SUBMISSION_CHANNEL, SUBMISSION_STREAM_ID);
@@ -38,8 +36,7 @@ public class RunExercise
         serviceThread.setName("AuctionService");
         serviceThread.start();
 
-        try (final AutomatedClient client = new AutomatedClient(SUBMISSION_CHANNEL, SUBMISSION_STREAM_ID))
-        {
+        try (final AutomatedClient client = new AutomatedClient(SUBMISSION_CHANNEL, SUBMISSION_STREAM_ID)) {
             house.addBidder("tmontgomery".getBytes(), 1, 0);
             house.addBidder("mjpt777".getBytes(), 2, 0);
             house.addBidder("RichardWarburton".getBytes(), 3, 0);

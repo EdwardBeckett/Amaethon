@@ -22,8 +22,7 @@ import java.util.function.Consumer;
 /**
  * Interface for an Auction House
  */
-public interface Model
-{
+public interface Model {
     // add an auction
     int add(final byte[] name, final int nameLength, final long expiration, final long reserveValue);
 

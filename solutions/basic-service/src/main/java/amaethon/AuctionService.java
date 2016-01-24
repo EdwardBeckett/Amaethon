@@ -17,6 +17,8 @@
 
 package amaethon;
 
+import java.util.concurrent.TimeUnit;
+
 import amaethon.generated.AuctionDecoder;
 import amaethon.generated.BidDecoder;
 import amaethon.generated.MessageHeaderDecoder;
@@ -29,10 +31,7 @@ import uk.co.real_logic.agrona.DirectBuffer;
 import uk.co.real_logic.agrona.concurrent.BackoffIdleStrategy;
 import uk.co.real_logic.agrona.concurrent.IdleStrategy;
 
-import java.util.concurrent.TimeUnit;
-
-public class AuctionService implements Runnable, AutoCloseable, FragmentHandler
-{
+public class AuctionService implements Runnable, AutoCloseable, FragmentHandler {
     private static final int MESSAGE_TEMPLATE_VERSION = 0;
     private static final long IDLE_MAX_SPINS = 0;
     private static final long IDLE_MAX_YIELDS = 0;
@@ -44,7 +43,7 @@ public class AuctionService implements Runnable, AutoCloseable, FragmentHandler
     private final BidDecoder bidDecoder = new BidDecoder();
     private final byte[] tmpByteArray = new byte[1024];
     private final IdleStrategy idleStrategy =
-        new BackoffIdleStrategy(IDLE_MAX_SPINS, IDLE_MAX_YIELDS, IDLE_MIN_PARK_NS, IDLE_MAX_PARK_NS);
+            new BackoffIdleStrategy(IDLE_MAX_SPINS, IDLE_MAX_YIELDS, IDLE_MIN_PARK_NS, IDLE_MAX_PARK_NS);
 
     private final AuctionHouse house;
     private final Aeron aeron;
@@ -52,14 +51,13 @@ public class AuctionService implements Runnable, AutoCloseable, FragmentHandler
 
     private volatile boolean running = true;
 
-    public AuctionService(final String submissionChannel, final int submissionStreamId)
-    {
+    public AuctionService(final String submissionChannel, final int submissionStreamId) {
         house = new AuctionHouse(
-            (auction) -> System.out.format("new auction: name=%s\n", auction.name()),
-            (auction) -> System.out.format(
-                "new high bid: name=%s, bidder=%d, bid=%d\n", auction.name(), auction.highBidder(), auction.highBid()),
-            (auction) -> System.out.format(
-                "auction won: name=%s, bidder=%d, bid=%d\n", auction.name(), auction.highBidder(), auction.highBid()));
+                (auction) -> System.out.format("new auction: name=%s\n", auction.name()),
+                (auction) -> System.out.format(
+                        "new high bid: name=%s, bidder=%d, bid=%d\n", auction.name(), auction.highBidder(), auction.highBid()),
+                (auction) -> System.out.format(
+                        "auction won: name=%s, bidder=%d, bid=%d\n", auction.name(), auction.highBidder(), auction.highBid()));
 
         // TODO: for exercise, add Aeron
         aeron = Aeron.connect(new Aeron.Context());
@@ -67,26 +65,21 @@ public class AuctionService implements Runnable, AutoCloseable, FragmentHandler
         subscription = aeron.addSubscription(submissionChannel, submissionStreamId);
     }
 
-    public AuctionHouse house()
-    {
+    public AuctionHouse house() {
         return house;
     }
 
-    public void shutdown()
-    {
+    public void shutdown() {
         running = false;
     }
 
-    public void close()
-    {
+    public void close() {
         CloseHelper.quietClose(subscription);
         CloseHelper.quietClose(aeron);
     }
 
-    public void run()
-    {
-        while (running)
-        {
+    public void run() {
+        while (running) {
             // TODO: for exercise, subscription polling
             final int fragmentsRead = subscription.poll(this, Integer.MAX_VALUE);
             final long now = System.nanoTime();
@@ -97,31 +90,27 @@ public class AuctionService implements Runnable, AutoCloseable, FragmentHandler
         }
     }
 
-    public void onFragment(DirectBuffer buffer, int offset, int length, Header header)
-    {
+    public void onFragment(DirectBuffer buffer, int offset, int length, Header header) {
         // TODO: for exercise, handle data
         messageHeaderDecoder.wrap(buffer, offset, MESSAGE_TEMPLATE_VERSION);
 
-        if (AuctionDecoder.TEMPLATE_ID == messageHeaderDecoder.templateId())
-        {
+        if (AuctionDecoder.TEMPLATE_ID == messageHeaderDecoder.templateId()) {
             auctionDecoder.wrap(
-                buffer,
-                offset + messageHeaderDecoder.size(),
-                messageHeaderDecoder.blockLength(),
-                MESSAGE_TEMPLATE_VERSION);
+                    buffer,
+                    offset + messageHeaderDecoder.size(),
+                    messageHeaderDecoder.blockLength(),
+                    MESSAGE_TEMPLATE_VERSION);
 
             final long now = System.nanoTime();
             final int nameLength = auctionDecoder.getName(tmpByteArray, 0, tmpByteArray.length);
 
             house.add(tmpByteArray, nameLength, now + auctionDecoder.durationInNanos(), auctionDecoder.reserve());
-        }
-        else if (BidDecoder.TEMPLATE_ID == messageHeaderDecoder.templateId())
-        {
+        } else if (BidDecoder.TEMPLATE_ID == messageHeaderDecoder.templateId()) {
             bidDecoder.wrap(
-                buffer,
-                offset + messageHeaderDecoder.size(),
-                messageHeaderDecoder.blockLength(),
-                MESSAGE_TEMPLATE_VERSION);
+                    buffer,
+                    offset + messageHeaderDecoder.size(),
+                    messageHeaderDecoder.blockLength(),
+                    MESSAGE_TEMPLATE_VERSION);
 
             house.bid(bidDecoder.auctionId(), bidDecoder.bidderId(), bidDecoder.value());
         }

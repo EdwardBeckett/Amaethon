@@ -22,34 +22,19 @@ import java.util.concurrent.TimeUnit;
 /**
  * Encapsulation of an Auction. Instances will be re-used by {@link AuctionHouse}.
  */
-public class Auction
-{
+public class Auction {
     private static final long LINGER_TIMEOUT_NANOS = TimeUnit.SECONDS.toNanos(10);
-
-    /*
-     * INACTIVE means Auction not valid
-     * ACTIVE means Auction is accepting bids
-     * OVER means Auction is over (Auction will linger for a period of time before being re-used)
-     */
-    enum State
-    {
-        INACTIVE, ACTIVE, OVER
-    }
-
     private byte[] nameInBytes = new byte[1024];
     private int nameLength;
     private long expiration;
     private long currentHighBid;
     private long currentHighBidderId;
     private State state;
-
-    public Auction()
-    {
+    public Auction() {
         this.state = State.INACTIVE;
     }
 
-    public void reset(final byte[] name, final int nameLength, final long expiration, final long reserveValue)
-    {
+    public void reset(final byte[] name, final int nameLength, final long expiration, final long reserveValue) {
         System.arraycopy(name, 0, this.nameInBytes, 0, name.length);
         this.nameLength = nameLength;
         this.expiration = expiration;
@@ -58,38 +43,30 @@ public class Auction
         this.state = State.ACTIVE;
     }
 
-    public boolean isInactive()
-    {
+    public boolean isInactive() {
         return (State.INACTIVE == state);
     }
 
-    public String name()
-    {
+    public String name() {
         return new String(nameInBytes, 0, nameLength);
     }
 
-    public long highBid()
-    {
+    public long highBid() {
         return currentHighBid;
     }
 
-    public long highBidder()
-    {
+    public long highBidder() {
         return currentHighBidderId;
     }
 
     // return 0 for nothing new or >0 for activity
-    public int onAdvanceTime(final long now)
-    {
+    public int onAdvanceTime(final long now) {
         int result = 0;
 
-        if (State.ACTIVE == state && now > expiration)
-        {
+        if (State.ACTIVE == state && now > expiration) {
             state = State.OVER;
             result = 1;
-        }
-        else if (State.OVER == state && now > (expiration + LINGER_TIMEOUT_NANOS))
-        {
+        } else if (State.OVER == state && now > (expiration + LINGER_TIMEOUT_NANOS)) {
             state = State.INACTIVE;
         }
 
@@ -97,12 +74,10 @@ public class Auction
     }
 
     // True if high bid. False if not.
-    public boolean bid(final long bidderId, final long value)
-    {
+    public boolean bid(final long bidderId, final long value) {
         boolean result = false;
 
-        if (State.ACTIVE == state && value > currentHighBid)
-        {
+        if (State.ACTIVE == state && value > currentHighBid) {
             currentHighBid = value;
             currentHighBidderId = bidderId;
             result = true;
@@ -111,9 +86,17 @@ public class Auction
         return result;
     }
 
-    public void cancel()
-    {
+    public void cancel() {
         this.currentHighBidderId = Bidder.INVALID_BIDDER;
         this.state = State.OVER;
+    }
+
+    /*
+     * INACTIVE means Auction not valid
+     * ACTIVE means Auction is accepting bids
+     * OVER means Auction is over (Auction will linger for a period of time before being re-used)
+     */
+    enum State {
+        INACTIVE, ACTIVE, OVER
     }
 }

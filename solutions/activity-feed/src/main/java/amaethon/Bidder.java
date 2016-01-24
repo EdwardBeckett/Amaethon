@@ -22,38 +22,32 @@ import java.util.Arrays;
 /**
  * Encapsulation of a bidder
  */
-public class Bidder
-{
+public class Bidder {
     public static final long INVALID_BIDDER = -1;
 
     private final byte[] name;
     private final long id;
     private long budget;
 
-    public Bidder(final byte[] name, final long bidderId, final long budget)
-    {
+    public Bidder(final byte[] name, final long bidderId, final long budget) {
         this.name = Arrays.copyOf(name, name.length);
         this.id = bidderId;
         this.budget = budget;
     }
 
-    public byte[] name()
-    {
+    public byte[] name() {
         return name;
     }
 
-    public long id()
-    {
+    public long id() {
         return id;
     }
 
-    public long budget()
-    {
+    public long budget() {
         return budget;
     }
 
-    public void decrementBudget(final long price)
-    {
+    public void decrementBudget(final long price) {
         budget -= price;
     }
 }

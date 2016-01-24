@@ -1,7 +1,7 @@
 Amaethon
 ========
 
-Auctioning with Aeron and SBE!
+Auctioning with Aeron and SBE
 
 Why Amaethon?
 -------------
